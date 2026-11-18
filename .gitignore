@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+dist/
+test-results/
+playwright-report/
+.playwright-mcp/
+backups/
+.env
+*.err
+fhir/scripts/.cache/
+client/public/mockServiceWorker.js
+archive/
+archive.zip
+mock-reports.png

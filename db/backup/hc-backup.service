@@ -1,0 +1,9 @@
+# systemd alternative to cron:  copy both files to /etc/systemd/system/, then
+#   sudo systemctl daemon-reload && sudo systemctl enable --now hc-backup.timer
+[Unit]
+Description=Health Centre database backup (PostgreSQL + MongoDB)
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/health-centre
+ExecStart=/srv/health-centre/db/backup/backup.sh

@@ -1,0 +1,5 @@
+# Nightly backup at 02:00 server time, log kept next to the backups. Edit the path, then: crontab -e
+# (run from the folder that contains docker-compose.yml; cron has no TTY so `-T` in the scripts is already right)
+0 2 * * *  cd /srv/health-centre && ./db/backup/backup.sh >> ./backups/backup.log 2>&1
+# Weekly proof that the newest backup can really be restored (Sunday 03:00):
+0 3 * * 0  cd /srv/health-centre && ./db/backup/restore-test.sh >> ./backups/restore-test.log 2>&1

@@ -1,0 +1,14 @@
+{
+  "name": "hc-fhir",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HL7 FHIR R4 mapper for the Health Centre record system (pure functions, no dependencies)",
+  "type": "module",
+  "main": "index.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "examples": "node scripts/generate-examples.js",
+    "validate:hl7": "sh scripts/validate-hl7.sh"
+  }
+}

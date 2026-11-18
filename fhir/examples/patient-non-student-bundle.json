@@ -1,0 +1,80 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:7c3e9d52-1b64-4f0a-8e21-5a9c0d7b3e02",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "7c3e9d52-1b64-4f0a-8e21-5a9c0d7b3e02",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "9000000001"
+          }
+        ],
+        "name": [
+          {
+            "text": "Sample Bravo"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1985"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:b1c2d3e4-0003-4a5b-8c6d-7e8f9a0b1c03",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "b1c2d3e4-0003-4a5b-8c6d-7e8f9a0b1c03",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "subject": {
+          "reference": "urn:uuid:7c3e9d52-1b64-4f0a-8e21-5a9c0d7b3e02"
+        },
+        "period": {
+          "start": "2026-11-12T04:50:00.000Z"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:b2e58ac7-ab80-567a-83da-87c9f41364e8",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "b2e58ac7-ab80-567a-83da-87c9f41364e8",
+        "code": {
+          "text": "Insect bite"
+        },
+        "subject": {
+          "reference": "urn:uuid:7c3e9d52-1b64-4f0a-8e21-5a9c0d7b3e02"
+        },
+        "encounter": {
+          "reference": "urn:uuid:b1c2d3e4-0003-4a5b-8c6d-7e8f9a0b1c03"
+        },
+        "recordedDate": "2026-11-12T04:50:00.000Z"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:2f69134d-59ff-5b19-b1cf-b5284a04ff5d",
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "2f69134d-59ff-5b19-b1cf-b5284a04ff5d",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Antiseptic dressing"
+        },
+        "subject": {
+          "reference": "urn:uuid:7c3e9d52-1b64-4f0a-8e21-5a9c0d7b3e02"
+        },
+        "context": {
+          "reference": "urn:uuid:b1c2d3e4-0003-4a5b-8c6d-7e8f9a0b1c03"
+        },
+        "dateAsserted": "2026-11-12T04:50:00.000Z"
+      }
+    }
+  ]
+}

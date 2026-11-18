@@ -1,0 +1,134 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01",
+        "identifier": [
+          {
+            "system": "https://nitdelhi.ac.in/id/roll-no",
+            "value": "251210901"
+          }
+        ],
+        "name": [
+          {
+            "text": "Sample Alpha"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2006-03-14"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:b1c2d3e4-0001-4a5b-8c6d-7e8f9a0b1c01",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "b1c2d3e4-0001-4a5b-8c6d-7e8f9a0b1c01",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "subject": {
+          "reference": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01"
+        },
+        "period": {
+          "start": "2026-11-16T05:35:00.000Z"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:9a632736-687b-52f5-b5df-289041318d14",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "9a632736-687b-52f5-b5df-289041318d14",
+        "code": {
+          "text": "Fever"
+        },
+        "subject": {
+          "reference": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01"
+        },
+        "encounter": {
+          "reference": "urn:uuid:b1c2d3e4-0001-4a5b-8c6d-7e8f9a0b1c01"
+        },
+        "recordedDate": "2026-11-16T05:35:00.000Z"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:a23e1461-0854-5e59-b7b4-848da50f56e6",
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "a23e1461-0854-5e59-b7b4-848da50f56e6",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Paracetamol 500mg"
+        },
+        "subject": {
+          "reference": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01"
+        },
+        "context": {
+          "reference": "urn:uuid:b1c2d3e4-0001-4a5b-8c6d-7e8f9a0b1c01"
+        },
+        "dateAsserted": "2026-11-16T05:35:00.000Z"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:b1c2d3e4-0002-4a5b-8c6d-7e8f9a0b1c02",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "b1c2d3e4-0002-4a5b-8c6d-7e8f9a0b1c02",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "subject": {
+          "reference": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01"
+        },
+        "period": {
+          "start": "2026-11-10T09:10:00.000Z"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:0f647f0d-14c9-5c01-9cc2-41e715fd11f1",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "0f647f0d-14c9-5c01-9cc2-41e715fd11f1",
+        "code": {
+          "text": "Headache"
+        },
+        "subject": {
+          "reference": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01"
+        },
+        "encounter": {
+          "reference": "urn:uuid:b1c2d3e4-0002-4a5b-8c6d-7e8f9a0b1c02"
+        },
+        "recordedDate": "2026-11-10T09:10:00.000Z"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:78afc328-e59b-5d8e-a5cc-82fc014ce812",
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "78afc328-e59b-5d8e-a5cc-82fc014ce812",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Rest and hydration advised"
+        },
+        "subject": {
+          "reference": "urn:uuid:2f1a6c1e-8f0b-4a53-9a77-3d1b5e0c9a01"
+        },
+        "context": {
+          "reference": "urn:uuid:b1c2d3e4-0002-4a5b-8c6d-7e8f9a0b1c02"
+        },
+        "dateAsserted": "2026-11-10T09:10:00.000Z"
+      }
+    }
+  ]
+}

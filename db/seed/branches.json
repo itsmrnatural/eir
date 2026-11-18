@@ -1,0 +1,12 @@
+{
+  "known": [
+    { "branch_id": 1, "branch_code": "210", "branch_name": "Computer Science and Engineering" },
+    { "branch_id": 2, "branch_code": "220", "branch_name": "Electronics and Communication Engineering" },
+    { "branch_id": 3, "branch_code": "221", "branch_name": "VLSI Design and Technology" }
+  ],
+  "synthetic": [
+    { "branch_id": 901, "branch_code": "991", "branch_name": "Synthetic Branch A (fake)" },
+    { "branch_id": 902, "branch_code": "992", "branch_name": "Synthetic Branch B (fake)" },
+    { "branch_id": 903, "branch_code": "993", "branch_name": "Synthetic Branch C (fake)" }
+  ]
+}

@@ -1,0 +1,11 @@
+roll_no,name,dob,sex,rfid_id,branch_code,batch_year,program
+251210801,Sample Alpha,2007-03-14,F,SAMPLE0001,,,
+251210802,Sample Bravo,2006-11-02,M,sample0002,,,
+251220801,Sample Charlie,2007-07-29,Other,SAMPLE0003,,,
+242221801,Sample Delta,2000-01-09,F,SAMPLE0004,,,
+241210803,"Sample, Echo",2006-05-21,M,SAMPLE0005,,,
+251210804,Sample Foxtrot,2007-02-30,M,SAMPLE0006,,,
+251210805,Sample Golf,2006-09-09,F,SAMPLE0001,,,
+251999801,Sample Hotel,2006-04-04,M,SAMPLE0007,,,
+25121080,Sample India,2006-04-04,F,SAMPLE0008,,,
+261210801,Sample Juliet,2007-08-08,M,SAMPLE0009,,,

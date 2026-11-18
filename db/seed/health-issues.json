@@ -1,0 +1,17 @@
+[
+  { "code": "FEVER",          "label": "Fever",             "snomed_ct": null },
+  { "code": "COLD",           "label": "Cold",              "snomed_ct": null },
+  { "code": "COUGH",          "label": "Cough",             "snomed_ct": null },
+  { "code": "HEADACHE",       "label": "Headache",          "snomed_ct": null },
+  { "code": "SORE_THROAT",    "label": "Sore throat",       "snomed_ct": null },
+  { "code": "STOMACH_ACHE",   "label": "Stomach ache",      "snomed_ct": null },
+  { "code": "NAUSEA_VOMITING","label": "Nausea / Vomiting", "snomed_ct": null },
+  { "code": "DIARRHOEA",      "label": "Diarrhoea",         "snomed_ct": null },
+  { "code": "BODY_ACHE",      "label": "Body ache",         "snomed_ct": null },
+  { "code": "ALLERGY",        "label": "Allergy",           "snomed_ct": null },
+  { "code": "SKIN_RASH",      "label": "Skin rash",         "snomed_ct": null },
+  { "code": "MINOR_INJURY",   "label": "Minor injury",      "snomed_ct": null },
+  { "code": "TOOTHACHE",      "label": "Toothache",         "snomed_ct": null },
+  { "code": "EYE_IRRITATION", "label": "Eye irritation",    "snomed_ct": null },
+  { "code": "DIZZINESS",      "label": "Dizziness",         "snomed_ct": null }
+]

@@ -1,0 +1,23 @@
+{
+  "name": "hc-db",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Health Centre RFID record system - data layer (PostgreSQL identity + MongoDB visits), repositories, import/admin scripts, seed data",
+  "type": "module",
+  "main": "index.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "test:integration": "node --test tests/integration/pg-mongo.int.js",
+    "seed": "node seed/seed.js",
+    "seed:reset": "node seed/seed.js --reset",
+    "import:students": "node scripts/import-students.js",
+    "create-user": "node scripts/create-user.js",
+    "relink-rfid": "node scripts/relink-rfid.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mongodb": "^6.3.0",
+    "pg": "^8.11.3"
+  }
+}

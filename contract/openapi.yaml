@@ -1,0 +1,744 @@
+openapi: 3.0.3
+info:
+  title: Health Centre RFID Record System API
+  version: 3.0.0
+  description: >
+    API contract for the NIT Delhi Health Centre RFID record system.
+    Base path /api/v1. Identity data comes from PostgreSQL, visits from MongoDB.
+    Synthetic data only.
+servers:
+  - url: http://localhost:4000/api/v1
+
+tags:
+  - name: auth
+  - name: patients
+  - name: visits
+  - name: reports
+  - name: meta
+  - name: export
+
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Log in and receive a JWT (1 hour)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /auth/me:
+    get:
+      tags: [auth]
+      summary: The authenticated user
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /patients/by-rfid/{rfid_id}:
+    get:
+      tags: [patients]
+      summary: Identify a student from an RFID tap
+      parameters:
+        - name: rfid_id
+          in: path
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 64 }
+      responses:
+        '200':
+          description: The student holding that active tag
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientView' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /patients/by-phone/{phone_no}:
+    get:
+      tags: [patients]
+      summary: List up to five people registered under a phone number
+      parameters:
+        - name: phone_no
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[0-9]{10}$' }
+      responses:
+        '200':
+          description: Matching non-students
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientList' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /patients/non-students:
+    post:
+      tags: [patients]
+      summary: Register a non-student (faculty, staff, worker)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NonStudentCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientView' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /patients:
+    get:
+      tags: [patients]
+      summary: Search by name, roll number or phone number
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientList' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /patients/{id}:
+    get:
+      tags: [patients]
+      summary: One patient
+      parameters:
+        - $ref: '#/components/parameters/PatientId'
+      responses:
+        '200':
+          description: The patient
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientView' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+    patch:
+      tags: [patients]
+      summary: Correct patient details (STAFF or ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/PatientId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PatientPatch' }
+      responses:
+        '200':
+          description: Updated patient
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientView' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /patients/{id}/history:
+    get:
+      tags: [patients]
+      summary: A patient's visit history (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/PatientId'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Patient plus visits, newest first
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VisitHistory' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /visits:
+    post:
+      tags: [visits]
+      summary: Record a visit; the server sets date_time and recorded_by
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VisitCreate' }
+      responses:
+        '201':
+          description: Visit created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Visit' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /visits/{id}:
+    patch:
+      tags: [visits]
+      summary: Correct a visit (ADMIN). health_issue_is_custom is recomputed by the repository.
+      parameters:
+        - $ref: '#/components/parameters/VisitId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VisitPatch' }
+      responses:
+        '200':
+          description: Updated visit
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Visit' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /reports/common-issues:
+    get:
+      tags: [reports]
+      summary: Most common health issues (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Counts by health issue
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CommonIssueRow' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /reports/peak-hours:
+    get:
+      tags: [reports]
+      summary: Visits per IST hour; only hours with visits are returned (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Counts by hour of day
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PeakHourRow' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /reports/frequent-visitors:
+    get:
+      tags: [reports]
+      summary: Patients with the most visits in range (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Visitor counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/FrequentVisitorRow' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /reports/visits-by-branch:
+    get:
+      tags: [reports]
+      summary: Student visits by branch (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Counts by branch
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BranchRow' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /reports/visits-by-batch:
+    get:
+      tags: [reports]
+      summary: Student visits by admission batch (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Counts by admission year
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BatchRow' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /reports/visits-over-time:
+    get:
+      tags: [reports]
+      summary: Visits per day/week/month bucket; only non-empty buckets (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - name: bucket
+          in: query
+          schema: { type: string, enum: [day, week, month], default: day }
+      responses:
+        '200':
+          description: Bucket counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TimeBucketRow' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /meta/branches:
+    get:
+      tags: [meta]
+      summary: Known branches
+      responses:
+        '200':
+          description: Branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Branch' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /meta/health-issues:
+    get:
+      tags: [meta]
+      summary: Configured health issues (the client also offers "Other")
+      responses:
+        '200':
+          description: Health issues
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/HealthIssue' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /export/fhir/patients/{id}:
+    get:
+      tags: [export]
+      summary: One patient and all their visits as an HL7 FHIR R4 Bundle (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/PatientId'
+      responses:
+        '200':
+          description: FHIR R4 collection Bundle
+          content:
+            application/fhir+json:
+              schema: { $ref: '#/components/schemas/FhirBundle' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /export/fhir/bulk:
+    get:
+      tags: [export]
+      summary: Every patient with visits in range as an HL7 FHIR R4 Bundle (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: FHIR R4 collection Bundle
+          content:
+            application/fhir+json:
+              schema: { $ref: '#/components/schemas/FhirBundle' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Error' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PatientId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    VisitId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    From:
+      name: from
+      in: query
+      description: First IST calendar day, inclusive (YYYY-MM-DD)
+      schema: { type: string, format: date }
+    To:
+      name: to
+      in: query
+      description: Last IST calendar day, inclusive (YYYY-MM-DD)
+      schema: { type: string, format: date }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, details]
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - UNAUTHENTICATED
+                - FORBIDDEN
+                - NOT_FOUND
+                - RFID_NOT_FOUND
+                - RFID_INACTIVE
+                - PHONE_LIMIT_REACHED
+                - DUPLICATE_PATIENT
+                - DUPLICATE_VISIT_WARNING
+                - RATE_LIMITED
+                - INTERNAL
+            message: { type: string }
+            details: { type: object }
+
+    Role:
+      type: string
+      enum: [ADMIN, STAFF]
+    Sex:
+      type: string
+      enum: [M, F, Other]
+    PatientType:
+      type: string
+      enum: [STUDENT, NON_STUDENT]
+    Program:
+      type: string
+      enum: [UG, PG]
+    Designation:
+      type: string
+      enum: [STAFF, FACULTY, WORKER, OTHER]
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 1, maxLength: 100 }
+        password: { type: string, minLength: 1, maxLength: 200 }
+
+    User:
+      type: object
+      required: [user_id, username, role]
+      properties:
+        user_id: { type: integer, minimum: 1 }
+        username: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+
+    LoginResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+
+    PatientView:
+      type: object
+      required: [patient_id, patient_type, name, age, age_is_estimated, sex]
+      properties:
+        patient_id: { type: string, format: uuid }
+        patient_type: { $ref: '#/components/schemas/PatientType' }
+        name: { type: string }
+        dob: { type: string, format: date }
+        age: { type: integer, minimum: 0, maximum: 130 }
+        age_is_estimated: { type: boolean }
+        sex: { $ref: '#/components/schemas/Sex' }
+        roll_no: { type: string }
+        batch_year: { type: integer }
+        program: { $ref: '#/components/schemas/Program' }
+        branch_id: { type: integer }
+        branch_code: { type: string }
+        branch_name: { type: string }
+        phone_no: { type: string }
+        designation: { $ref: '#/components/schemas/Designation' }
+        rfid_id: { type: string }
+        age_at_registration: { type: integer, minimum: 0, maximum: 120 }
+        registered_on: { type: string, format: date }
+
+    PatientList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/PatientView' }
+        total: { type: integer, minimum: 0 }
+
+    NonStudentCreate:
+      type: object
+      required: [name, age, sex, phone_no, designation]
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        age: { type: integer, minimum: 0, maximum: 120 }
+        sex: { $ref: '#/components/schemas/Sex' }
+        phone_no: { type: string, pattern: '^[0-9]{10}$' }
+        designation: { $ref: '#/components/schemas/Designation' }
+
+    PatientPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        sex: { $ref: '#/components/schemas/Sex' }
+        dob: { type: string, format: date }
+        age: { type: integer, minimum: 0, maximum: 120 }
+        phone_no: { type: string, pattern: '^[0-9]{10}$' }
+        designation: { $ref: '#/components/schemas/Designation' }
+
+    VisitSnapshot:
+      type: object
+      required: [name, sex, age_at_visit]
+      properties:
+        name: { type: string }
+        sex: { $ref: '#/components/schemas/Sex' }
+        age_at_visit: { type: integer, minimum: 0, maximum: 130 }
+        roll_no: { type: string }
+        batch_year: { type: integer }
+        program: { $ref: '#/components/schemas/Program' }
+        branch_id: { type: integer }
+        branch_name: { type: string }
+        phone_no: { type: string }
+        designation: { $ref: '#/components/schemas/Designation' }
+
+    Visit:
+      type: object
+      required:
+        - visit_id
+        - patient_id
+        - patient_type
+        - snapshot
+        - date_time
+        - health_issue
+        - health_issue_is_custom
+        - remedy
+        - recorded_by
+        - created_at
+        - updated_at
+      properties:
+        visit_id: { type: string, format: uuid }
+        patient_id: { type: string, format: uuid }
+        patient_type: { $ref: '#/components/schemas/PatientType' }
+        snapshot: { $ref: '#/components/schemas/VisitSnapshot' }
+        date_time: { type: string, format: date-time }
+        health_issue: { type: string, minLength: 1 }
+        health_issue_is_custom: { type: boolean }
+        remedy: { type: string, minLength: 1 }
+        recorded_by: { type: integer, minimum: 1 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    VisitCreate:
+      type: object
+      required: [patient_id, health_issue, health_issue_is_custom, remedy]
+      additionalProperties: false
+      properties:
+        patient_id: { type: string, format: uuid }
+        health_issue: { type: string, minLength: 1, maxLength: 200 }
+        health_issue_is_custom: { type: boolean }
+        remedy: { type: string, minLength: 1, maxLength: 500 }
+        confirm_duplicate: { type: boolean }
+
+    VisitPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      properties:
+        health_issue: { type: string, minLength: 1, maxLength: 200 }
+        remedy: { type: string, minLength: 1, maxLength: 500 }
+
+    VisitHistory:
+      type: object
+      required: [patient, items, total]
+      properties:
+        patient: { $ref: '#/components/schemas/PatientView' }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Visit' }
+        total: { type: integer, minimum: 0 }
+
+    CommonIssueRow:
+      type: object
+      required: [health_issue, count]
+      properties:
+        health_issue: { type: string }
+        count: { type: integer, minimum: 0 }
+
+    PeakHourRow:
+      type: object
+      required: [hour, count]
+      properties:
+        hour: { type: integer, minimum: 0, maximum: 23 }
+        count: { type: integer, minimum: 0 }
+
+    FrequentVisitorRow:
+      type: object
+      required: [patient_id, name, patient_type, count]
+      properties:
+        patient_id: { type: string, format: uuid }
+        name: { type: string }
+        patient_type: { $ref: '#/components/schemas/PatientType' }
+        count: { type: integer, minimum: 0 }
+
+    BranchRow:
+      type: object
+      required: [branch_id, branch_name, count]
+      properties:
+        branch_id: { type: integer }
+        branch_name: { type: string }
+        count: { type: integer, minimum: 0 }
+
+    BatchRow:
+      type: object
+      required: [batch_year, count]
+      properties:
+        batch_year: { type: integer }
+        count: { type: integer, minimum: 0 }
+
+    TimeBucketRow:
+      type: object
+      required: [bucket, count]
+      properties:
+        bucket:
+          type: string
+          description: 'day: YYYY-MM-DD, week: Monday YYYY-MM-DD, month: YYYY-MM'
+        count: { type: integer, minimum: 0 }
+
+    Branch:
+      type: object
+      required: [branch_id, branch_code, branch_name]
+      properties:
+        branch_id: { type: integer }
+        branch_code: { type: string }
+        branch_name: { type: string }
+
+    HealthIssue:
+      type: object
+      required: [code, label]
+      properties:
+        code: { type: string }
+        label: { type: string }
+
+    FhirBundle:
+      type: object
+      required: [resourceType, type, entry]
+      properties:
+        resourceType: { type: string, enum: [Bundle] }
+        type: { type: string, enum: [collection] }
+        entry:
+          type: array
+          items:
+            type: object
+            required: [fullUrl, resource]
+            properties:
+              fullUrl: { type: string, pattern: '^urn:uuid:' }
+              resource: { type: object }
+
+  responses:
+    Error:
+      description: Error envelope
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    ValidationError:
+      description: VALIDATION_ERROR (400)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Unauthenticated:
+      description: UNAUTHENTICATED (401)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Forbidden:
+      description: FORBIDDEN (403)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    NotFound:
+      description: NOT_FOUND / RFID_NOT_FOUND (404)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Conflict:
+      description: Conflict such as RFID_INACTIVE, PHONE_LIMIT_REACHED, DUPLICATE_PATIENT or DUPLICATE_VISIT_WARNING (409)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    RateLimited:
+      description: RATE_LIMITED (429)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+security:
+  - bearerAuth: []

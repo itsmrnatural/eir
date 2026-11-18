@@ -1,0 +1,221 @@
+# EXPLAIN output, generated 2026-11-17T11:52:13.284Z
+postgres rows: patient=366, student_rfid=309
+
+### RFID tap (patients.findByRfid)
+Nested Loop Left Join  (cost=1.40..17.87 rows=1 width=345) (actual time=0.223..0.225 rows=1 loops=1)
+  Buffers: shared hit=15
+  ->  Nested Loop Left Join  (cost=1.12..17.48 rows=1 width=256) (actual time=0.202..0.204 rows=1 loops=1)
+        Buffers: shared hit=12
+        ->  Index Scan using student_rfid_pkey on student_rfid r  (cost=0.28..8.29 rows=1 width=33) (actual time=0.024..0.025 rows=1 loops=1)
+              Index Cond: (rfid_id = 'SYN7C79F74F'::text)
+              Buffers: shared hit=3
+        ->  Nested Loop Left Join  (cost=0.85..9.17 rows=1 width=255) (actual time=0.175..0.175 rows=1 loops=1)
+              Buffers: shared hit=9
+              ->  Nested Loop Left Join  (cost=0.70..8.95 rows=1 width=191) (actual time=0.148..0.149 rows=1 loops=1)
+                    Buffers: shared hit=8
+                    ->  Nested Loop  (cost=0.55..8.71 rows=1 width=127) (actual time=0.114..0.114 rows=1 loops=1)
+                          Buffers: shared hit=6
+                          ->  Index Scan using student_roll_no_key on student s  (cost=0.28..8.29 rows=1 width=84) (actual time=0.022..0.022 rows=1 loops=1)
+                                Index Cond: (roll_no = r.roll_no)
+                                Buffers: shared hit=3
+                          ->  Index Scan using patient_pkey on patient p  (cost=0.28..0.42 rows=1 width=59) (actual time=0.091..0.091 rows=1 loops=1)
+                                Index Cond: (patient_id = s.patient_id)
+                                Buffers: shared hit=3
+                    ->  Index Scan using branch_pkey on branch b  (cost=0.15..0.23 rows=1 width=66) (actual time=0.034..0.034 rows=1 loops=1)
+                          Index Cond: (branch_id = s.branch_id)
+                          Buffers: shared hit=2
+              ->  Index Scan using non_student_pkey on non_student n  (cost=0.15..0.23 rows=1 width=80) (actual time=0.026..0.026 rows=0 loops=1)
+                    Index Cond: (patient_id = p.patient_id)
+                    Buffers: shared hit=1
+  ->  Index Scan using student_rfid_one_active on student_rfid r_1  (cost=0.28..0.37 rows=1 width=64) (actual time=0.019..0.019 rows=1 loops=1)
+        Index Cond: (roll_no = s.roll_no)
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=385
+Planning Time: 1.797 ms
+Execution Time: 0.426 ms
+
+### RFID tap (patients.findByRfid)  [enable_seqscan = off]
+Nested Loop Left Join  (cost=1.40..17.87 rows=1 width=345) (actual time=0.023..0.025 rows=1 loops=1)
+  Buffers: shared hit=15
+  ->  Nested Loop Left Join  (cost=1.12..17.48 rows=1 width=256) (actual time=0.018..0.019 rows=1 loops=1)
+        Buffers: shared hit=12
+        ->  Index Scan using student_rfid_pkey on student_rfid r  (cost=0.28..8.29 rows=1 width=33) (actual time=0.004..0.004 rows=1 loops=1)
+              Index Cond: (rfid_id = 'SYN7C79F74F'::text)
+              Buffers: shared hit=3
+        ->  Nested Loop Left Join  (cost=0.85..9.17 rows=1 width=255) (actual time=0.014..0.014 rows=1 loops=1)
+              Buffers: shared hit=9
+              ->  Nested Loop Left Join  (cost=0.70..8.95 rows=1 width=191) (actual time=0.010..0.010 rows=1 loops=1)
+                    Buffers: shared hit=8
+                    ->  Nested Loop  (cost=0.55..8.71 rows=1 width=127) (actual time=0.008..0.008 rows=1 loops=1)
+                          Buffers: shared hit=6
+                          ->  Index Scan using student_roll_no_key on student s  (cost=0.28..8.29 rows=1 width=84) (actual time=0.002..0.002 rows=1 loops=1)
+                                Index Cond: (roll_no = r.roll_no)
+                                Buffers: shared hit=3
+                          ->  Index Scan using patient_pkey on patient p  (cost=0.28..0.42 rows=1 width=59) (actual time=0.005..0.005 rows=1 loops=1)
+                                Index Cond: (patient_id = s.patient_id)
+                                Buffers: shared hit=3
+                    ->  Index Scan using branch_pkey on branch b  (cost=0.15..0.23 rows=1 width=66) (actual time=0.001..0.001 rows=1 loops=1)
+                          Index Cond: (branch_id = s.branch_id)
+                          Buffers: shared hit=2
+              ->  Index Scan using non_student_pkey on non_student n  (cost=0.15..0.23 rows=1 width=80) (actual time=0.004..0.004 rows=0 loops=1)
+                    Index Cond: (patient_id = p.patient_id)
+                    Buffers: shared hit=1
+  ->  Index Scan using student_rfid_one_active on student_rfid r_1  (cost=0.28..0.37 rows=1 width=64) (actual time=0.003..0.004 rows=1 loops=1)
+        Index Cond: (roll_no = s.roll_no)
+        Buffers: shared hit=3
+Planning Time: 0.510 ms
+Execution Time: 0.045 ms
+
+### Desk search for '90000' (patients.search)
+Limit  (cost=86.62..86.86 rows=3 width=346) (actual time=0.548..0.557 rows=20 loops=1)
+  Buffers: shared hit=262
+  ->  Result  (cost=86.62..86.86 rows=3 width=346) (actual time=0.547..0.555 rows=20 loops=1)
+        Buffers: shared hit=262
+        ->  Sort  (cost=86.62..86.63 rows=3 width=350) (actual time=0.543..0.545 rows=20 loops=1)
+              Sort Key: ((lower(p.name) = '90000'::text)) DESC, ((lower(p.name) ~~ '90000%'::text)) DESC, p.name
+              Sort Method: top-N heapsort  Memory: 29kB
+              Buffers: shared hit=262
+              ->  Nested Loop Left Join  (cost=63.41..86.60 rows=3 width=350) (actual time=0.308..0.404 rows=60 loops=1)
+                    Buffers: shared hit=254
+                    ->  Nested Loop Left Join  (cost=63.14..85.39 rows=3 width=251) (actual time=0.299..0.366 rows=60 loops=1)
+                          Buffers: shared hit=254
+                          ->  Nested Loop Left Join  (cost=62.99..84.71 rows=3 width=187) (actual time=0.293..0.338 rows=60 loops=1)
+                                Buffers: shared hit=134
+                                ->  Nested Loop Left Join  (cost=62.84..84.01 rows=3 width=123) (actual time=0.264..0.301 rows=60 loops=1)
+                                      Buffers: shared hit=134
+                                      ->  Hash Join  (cost=62.56..82.93 rows=3 width=55) (actual time=0.230..0.240 rows=60 loops=1)
+                                            Hash Cond: (p.patient_id = p_1.patient_id)
+                                            Buffers: shared hit=14
+                                            ->  Seq Scan on patient p  (cost=0.00..18.20 rows=820 width=55) (actual time=0.003..0.015 rows=366 loops=1)
+                                                  Buffers: shared hit=5
+                                            ->  Hash  (cost=62.53..62.53 rows=3 width=16) (actual time=0.185..0.186 rows=60 loops=1)
+                                                  Buckets: 1024  Batches: 1  Memory Usage: 11kB
+                                                  Buffers: shared hit=9
+                                                  ->  HashAggregate  (cost=62.50..62.53 rows=3 width=16) (actual time=0.174..0.177 rows=60 loops=1)
+                                                        Group Key: p_1.patient_id
+                                                        Batches: 1  Memory Usage: 32kB
+                                                        Buffers: shared hit=9
+                                                        ->  Append  (cost=0.00..62.49 rows=3 width=16) (actual time=0.147..0.153 rows=60 loops=1)
+                                                              Buffers: shared hit=9
+                                                              ->  Seq Scan on patient p_1  (cost=0.00..22.30 rows=1 width=16) (actual time=0.080..0.080 rows=0 loops=1)
+                                                                    Filter: (lower(name) ~~ '%90000%'::text)
+                                                                    Rows Removed by Filter: 366
+                                                                    Buffers: shared hit=5
+                                                              ->  Seq Scan on student s_1  (cost=0.00..20.80 rows=1 width=16) (actual time=0.059..0.059 rows=0 loops=1)
+                                                                    Filter: (lower(roll_no) ~~ '%90000%'::text)
+                                                                    Rows Removed by Filter: 306
+                                                                    Buffers: shared hit=3
+                                                              ->  Seq Scan on non_student n_1  (cost=0.00..19.38 rows=1 width=16) (actual time=0.007..0.011 rows=60 loops=1)
+                                                                    Filter: (phone_no ~~ '%90000%'::text)
+                                                                    Buffers: shared hit=1
+                                      ->  Index Scan using student_pkey on student s  (cost=0.28..0.36 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=60)
+                                            Index Cond: (patient_id = p.patient_id)
+                                            Buffers: shared hit=120
+                                ->  Index Scan using branch_pkey on branch b  (cost=0.15..0.23 rows=1 width=66) (actual time=0.001..0.001 rows=0 loops=60)
+                                      Index Cond: (branch_id = s.branch_id)
+                          ->  Index Scan using non_student_pkey on non_student n  (cost=0.15..0.23 rows=1 width=80) (actual time=0.000..0.000 rows=1 loops=60)
+                                Index Cond: (patient_id = p.patient_id)
+                                Buffers: shared hit=120
+                    ->  Index Scan using student_rfid_one_active on student_rfid r  (cost=0.28..0.37 rows=1 width=64) (actual time=0.000..0.000 rows=0 loops=60)
+                          Index Cond: (roll_no = s.roll_no)
+Planning:
+  Buffers: shared hit=30
+Planning Time: 1.448 ms
+Execution Time: 0.745 ms
+
+### Desk search for '90000' (patients.search)  [enable_seqscan = off]
+Limit  (cost=185.83..186.07 rows=3 width=346) (actual time=0.524..0.533 rows=20 loops=1)
+  Buffers: shared hit=455
+  ->  Result  (cost=185.83..186.07 rows=3 width=346) (actual time=0.524..0.532 rows=20 loops=1)
+        Buffers: shared hit=455
+        ->  Sort  (cost=185.83..185.84 rows=3 width=350) (actual time=0.521..0.523 rows=20 loops=1)
+              Sort Key: ((lower(p.name) = '90000'::text)) DESC, ((lower(p.name) ~~ '90000%'::text)) DESC, p.name
+              Sort Method: top-N heapsort  Memory: 29kB
+              Buffers: shared hit=455
+              ->  Nested Loop Left Join  (cost=158.33..185.81 rows=3 width=350) (actual time=0.289..0.452 rows=60 loops=1)
+                    Buffers: shared hit=455
+                    ->  Nested Loop Left Join  (cost=158.06..184.60 rows=3 width=251) (actual time=0.287..0.411 rows=60 loops=1)
+                          Buffers: shared hit=455
+                          ->  Nested Loop Left Join  (cost=157.91..183.92 rows=3 width=187) (actual time=0.285..0.381 rows=60 loops=1)
+                                Buffers: shared hit=335
+                                ->  Nested Loop Left Join  (cost=157.76..183.22 rows=3 width=123) (actual time=0.285..0.369 rows=60 loops=1)
+                                      Buffers: shared hit=335
+                                      ->  Nested Loop  (cost=157.48..182.14 rows=3 width=55) (actual time=0.283..0.340 rows=60 loops=1)
+                                            Buffers: shared hit=215
+                                            ->  HashAggregate  (cost=157.21..157.24 rows=3 width=16) (actual time=0.278..0.284 rows=60 loops=1)
+                                                  Group Key: p_1.patient_id
+                                                  Batches: 1  Memory Usage: 32kB
+                                                  Buffers: shared hit=35
+                                                  ->  Append  (cost=80.95..157.20 rows=3 width=16) (actual time=0.262..0.268 rows=60 loops=1)
+                                                        Buffers: shared hit=35
+                                                        ->  Bitmap Heap Scan on patient p_1  (cost=80.95..84.97 rows=1 width=16) (actual time=0.189..0.189 rows=0 loops=1)
+                                                              Recheck Cond: (lower(name) ~~ '%90000%'::text)
+                                                              Buffers: shared hit=19
+                                                              ->  Bitmap Index Scan on patient_name_trgm_idx  (cost=0.00..80.95 rows=1 width=0) (actual time=0.188..0.188 rows=0 loops=1)
+                                                                    Index Cond: (lower(name) ~~ '%90000%'::text)
+                                                                    Buffers: shared hit=19
+                                                        ->  Bitmap Heap Scan on student s_1  (cost=46.96..50.97 rows=1 width=16) (actual time=0.065..0.065 rows=0 loops=1)
+                                                              Recheck Cond: (lower(roll_no) ~~ '%90000%'::text)
+                                                              Buffers: shared hit=11
+                                                              ->  Bitmap Index Scan on student_roll_no_trgm_idx  (cost=0.00..46.96 rows=1 width=0) (actual time=0.065..0.065 rows=0 loops=1)
+                                                                    Index Cond: (lower(roll_no) ~~ '%90000%'::text)
+                                                                    Buffers: shared hit=11
+                                                        ->  Bitmap Heap Scan on non_student n_1  (cost=17.24..21.25 rows=1 width=16) (actual time=0.008..0.012 rows=60 loops=1)
+                                                              Recheck Cond: (phone_no ~~ '%90000%'::text)
+                                                              Heap Blocks: exact=1
+                                                              Buffers: shared hit=5
+                                                              ->  Bitmap Index Scan on non_student_phone_trgm_idx  (cost=0.00..17.24 rows=1 width=0) (actual time=0.006..0.006 rows=60 loops=1)
+                                                                    Index Cond: (phone_no ~~ '%90000%'::text)
+                                                                    Buffers: shared hit=4
+                                            ->  Index Scan using patient_pkey on patient p  (cost=0.28..8.29 rows=1 width=55) (actual time=0.001..0.001 rows=1 loops=60)
+                                                  Index Cond: (patient_id = p_1.patient_id)
+                                                  Buffers: shared hit=180
+                                      ->  Index Scan using student_pkey on student s  (cost=0.28..0.36 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=60)
+                                            Index Cond: (patient_id = p.patient_id)
+                                            Buffers: shared hit=120
+                                ->  Index Scan using branch_pkey on branch b  (cost=0.15..0.23 rows=1 width=66) (actual time=0.000..0.000 rows=0 loops=60)
+                                      Index Cond: (branch_id = s.branch_id)
+                          ->  Index Scan using non_student_pkey on non_student n  (cost=0.15..0.23 rows=1 width=80) (actual time=0.000..0.000 rows=1 loops=60)
+                                Index Cond: (patient_id = p.patient_id)
+                                Buffers: shared hit=120
+                    ->  Index Scan using student_rfid_one_active on student_rfid r  (cost=0.28..0.37 rows=1 width=64) (actual time=0.000..0.000 rows=0 loops=60)
+                          Index Cond: (roll_no = s.roll_no)
+Planning:
+  Buffers: shared hit=3
+Planning Time: 0.413 ms
+Execution Time: 0.705 ms
+
+mongo rows: visits=6000
+
+### duplicate-visit check: newest visit of one patient
+plan: LIMIT <- FETCH <- IXSCAN(patient_id_date_time)
+docs examined: 1, keys examined: 1, returned: 1, time: 0 ms
+
+### report commonIssues (last 30 days)
+plan: PROJECTION_SIMPLE <- FETCH <- IXSCAN(date_time)
+docs examined: 1058, keys examined: 1058, returned: 1058, time: 2 ms
+
+### report peakHours (last 30 days)
+plan: PROJECTION_COVERED <- IXSCAN(date_time)
+docs examined: 0, keys examined: 1058, returned: 1058, time: 1 ms
+
+### report visitsOverTime day (last 30 days)
+plan: PROJECTION_COVERED <- IXSCAN(date_time)
+docs examined: 0, keys examined: 1058, returned: 1058, time: 2 ms
+
+### report frequentVisitors (last 30 days)
+plan: PROJECTION_DEFAULT <- FETCH <- IXSCAN(date_time)
+docs examined: 1058, keys examined: 1058, returned: 1058, time: 2 ms
+
+### report visitsByBranch (last 30 days)
+plan: PROJECTION_DEFAULT <- FETCH <- IXSCAN(date_time)
+docs examined: 1058, keys examined: 1058, returned: 865, time: 2 ms
+
+### report visitsByBatch (last 30 days)
+plan: PROJECTION_DEFAULT <- FETCH <- IXSCAN(date_time)
+docs examined: 1058, keys examined: 1058, returned: 865, time: 1 ms
+
+### report commonIssues (all time)
+plan: PROJECTION_SIMPLE <- COLLSCAN
+docs examined: 6000, keys examined: 0, returned: 6000, time: 10 ms

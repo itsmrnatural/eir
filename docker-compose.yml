@@ -67,6 +67,9 @@ services:
       CORS_ORIGIN: http://localhost:8080,http://localhost:5173
       DUPLICATE_VISIT_WINDOW_MIN: "10"
       REPOS: real
+      # Demo only: lets a phone act as the card reader. Off unless you run  DEMO_TAP=1 DEMO_TAP_KEY=<12+ chars> docker compose up -d server
+      DEMO_TAP: ${DEMO_TAP:-0}
+      DEMO_TAP_KEY: ${DEMO_TAP_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy

@@ -19,6 +19,8 @@ import { visitsRouter } from './routes/visits.js';
 import { reportsRouter } from './routes/reports.js';
 import { metaRouter } from './routes/meta.js';
 import { exportRouter } from './routes/export.js';
+import { demoTapRouter, demoPageRouter } from './routes/demoTap.js';
+import { createDemoTapHub } from './services/demoTapHub.js';
 
 /**
  * @param {object}  deps
@@ -122,6 +124,15 @@ export function createApp(deps = {}) {
   api.use('/reports', reportsRouter(ctx));
   api.use('/meta', metaRouter(ctx));
   api.use('/export', exportRouter(ctx));
+
+  // Demo only (DEMO_TAP=1): a phone can act as the card reader. Absent from the app otherwise.
+  if (config.demoTap?.enabled) {
+    const hub = createDemoTapHub();
+    app.locals.demoTapHub = hub; // index.js closes the open streams on shutdown
+    api.use('/demo', demoTapRouter({ config, hub }));
+    app.use('/demo', demoPageRouter());
+    log.warn('DEMO_TAP is ON: /demo and /api/v1/demo/tap accept taps from anyone holding the demo key. Do not leave this on.');
+  }
   app.use('/api/v1', api);
 
   app.use(notFoundHandler);

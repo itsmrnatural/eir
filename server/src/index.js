@@ -82,6 +82,7 @@ async function main() {
       process.exit(1);
     }, 10_000);
     force.unref();
+    app.locals.demoTapHub?.closeAll(); // open demo streams would otherwise hold shutdown until the force timeout
     server.close(async (err) => {
       try {
         await close();

@@ -17,6 +17,9 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
   MONGO_URL: z.string().optional(),
   MONGO_DB: z.string().default('health_centre'),
+  // Demo only: lets a phone act as the card reader (see routes/demoTap.js). Off unless DEMO_TAP=1.
+  DEMO_TAP: z.string().default('0'),
+  DEMO_TAP_KEY: z.string().optional(),
 });
 
 function parseTrustProxy(v) {
@@ -46,6 +49,11 @@ export function loadConfig(env = process.env) {
     throw new Error('Invalid configuration: JWT_SECRET must be at least 16 characters in production');
   }
 
+  const demoTapEnabled = ['1', 'true', 'yes', 'on'].includes(e.DEMO_TAP.trim().toLowerCase());
+  if (demoTapEnabled && (e.DEMO_TAP_KEY ?? '').length < 12) {
+    throw new Error('Invalid configuration: DEMO_TAP=1 requires DEMO_TAP_KEY of at least 12 characters');
+  }
+
   return Object.freeze({
     env: e.NODE_ENV,
     isProduction,
@@ -66,5 +74,6 @@ export function loadConfig(env = process.env) {
     databaseUrl: e.DATABASE_URL,
     mongoUrl: e.MONGO_URL,
     mongoDb: e.MONGO_DB,
+    demoTap: Object.freeze({ enabled: demoTapEnabled, key: demoTapEnabled ? e.DEMO_TAP_KEY : undefined }),
   });
 }

@@ -5,6 +5,7 @@ import { friendlyMessage } from '../../api/errors.js';
 import { Alert } from '../../components/States.jsx';
 import { DEV_TAP_EVENT } from '../../lib/devEvents.js';
 import TapPanel from './TapPanel.jsx';
+import { DEMO_TAP_MESSAGES, useDemoTap } from './useDemoTap.js';
 import VisitEntry from './VisitEntry.jsx';
 
 /** Students are identified only by card; there is no registration form here. */
@@ -41,6 +42,12 @@ export default function StudentFlow() {
     return () => window.removeEventListener(DEV_TAP_EVENT, handler);
   }, [onScan]);
 
+  // DEMO ONLY: a phone can act as the reader (needs ?demo=<key>, see lib/demoTap.js). Like the USB reader,
+  // a tap is ignored while a visit form is open or a lookup is running, so nothing typed is lost.
+  const demoStatus = useDemoTap((tag) => {
+    if (!patient && !lookup.isPending) onScan(tag);
+  });
+
   const reset = () => {
     setPatient(null);
     setProblem(null);
@@ -62,6 +69,11 @@ export default function StudentFlow() {
           )
         }
       />
+      {demoStatus !== 'off' && (
+        <p className={`demo-chip demo-${demoStatus}`} role="status">
+          {DEMO_TAP_MESSAGES[demoStatus]}
+        </p>
+      )}
       {problem && (
         <Alert kind="error" className="alert alert-error alert-big">
           <p className="alert-title">{problem.text}</p>

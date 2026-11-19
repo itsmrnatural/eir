@@ -7,7 +7,8 @@ import { relinkRfid } from '../lib/relink-rfid.js';
 async function main(argv) {
   const actorAt = argv.indexOf('--actor');
   const actor = actorAt >= 0 ? argv[actorAt + 1] : null;
-  const rest = argv.filter((a, i) => !a.startsWith('--') && i !== actorAt + 1);
+  const actorValueAt = actorAt >= 0 ? actorAt + 1 : -1; // with no --actor, -1 skips nothing (index 0 is the roll number)
+  const rest = argv.filter((a, i) => !a.startsWith('--') && i !== actorValueAt);
   const [roll_no, new_rfid_id] = rest;
   if (!roll_no || !new_rfid_id) { console.error('Usage: node scripts/relink-rfid.js <roll_no> <new_rfid_id> [--actor <username>]'); return 1; }
   const conn = await connectAll({ needMongo: false });
